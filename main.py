@@ -1,6 +1,8 @@
 import random
 import time
-import os
+import tracemalloc
+import io
+tracemalloc.start()
 
 
 # PURPOSE:
@@ -11,16 +13,22 @@ import os
 def generate_dna_sequence(length, name):
     """Generates a random DNA sequence and inserts the user's name at a random position."""
     # Nucleotides that make up a DNA sequence
-    nucleotides = ['A', 'C', 'G', 'T']  # (we don't need to store individual nucleotides)
-
+    #nucleotides = ['A', 'C', 'G', 'T']  # (we don't need to store individual nucleotides)
+    nucleotides = 'ACGT'
+    #with immutable strings, the performance is faster and peak memory smaller.
+    buffer = io.StringIO()
     # Generate a random sequence of specified length
-    sequence = ''.join(random.choice(nucleotides) for _ in range(length))
-
+    # overhead from repeated generator calls and function lookups
+    #sequence = ''.join(random.choice(nucleotides) for _ in range(length))
+    #sequence =''.join(random.choice(nucleotides,k=length))
+    buffer.write(''.join(random.choices(nucleotides, k=length)))
     # Insert the user's name at a random position
-    random_position = random.randint(0, len(sequence))
-    sequence = sequence[:random_position] + name + sequence[random_position:]
-
-    return sequence
+    #random_position = random.randint(0, len(sequence))
+    pos = random.randint(0, length)
+    #sequence = sequence[:random_position] + name + sequence[random_position:]
+    seq = buffer.getvalue()
+    #return sequence
+    return seq[:pos] + name + seq[pos:]
 
 
 def calculate_statistics(sequence):
@@ -62,7 +70,7 @@ def main():
     sequence_id = input("Enter the sequence ID: ")
     description = input("Provide a description of the sequence: ")
     user_name = input("Enter your name: ")
-
+    start_time = time.time()
     # Generate the DNA sequence
     sequence = generate_dna_sequence(sequence_length, user_name)
 
@@ -79,11 +87,14 @@ def main():
     print(f"G: {G_percent:.1f}%")
     print(f"T: {T_percent:.1f}%")
     print(f"%CG: {cg_ratio:.1f}")
-
+    end_time = time.time()
+    print(f"Execution time: {end_time - start_time:.4f} seconds")
 
 if __name__ == "__main__":
-    start_time = time.time()
-
+    snap_before = tracemalloc.take_snapshot()
     main()
+    snap_after = tracemalloc.take_snapshot()
+    curr, peak = tracemalloc.get_traced_memory()
+    print(f"Total memory used: {curr/1024:.2f} KiB")  # current = memory used at end
+    print(f"Peak memory usage: {peak/1024:.2f} KiB")  # peak = highest usage
 
-    end_time = time.time()

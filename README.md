@@ -9,3 +9,23 @@ With your AI tool of choice, create in Python nucleotide sequence generator in F
 5. The program should also display sequence statistics: the percentage of each nucleotide and the ratio of C and G nucleotides to A and T.
 6. The program should insert your name at a random place in the sequence. Remember, however, that the letters forming the name do not affect the statistics of the DNA sequence and are not counted towards its length.
 
+The actual changes:
+First thing when we want to compare we need to measure whether the performance is actually improving.
+To this module time and **tracemalloc** are useful.
+Test case for the Ai code:
+Enter the sequence length: 10000
+Enter the sequence ID: 123
+Provide a description of the sequence: abc
+Enter your name: Katarzyna
+Execution time: 0.0177 seconds
+Total memory used: 5.69 KiB
+Peak memory usage: 96.54 KiB
+with changing the list to string we decreased the peak memory usage and execution time, which for bigger data is crucial.
+Execution time: 0.0162 seconds
+Peak memory usage: 96.50 KiB
+by creating file-like object that operates on strings entirely in RAM we are able to optimize the execution time to 3x less than previously.
+Execution time: 0.0049 seconds
+Peak memory usage: 96.19 KiB
+
+with the same data, new results are:
+
